@@ -16,7 +16,7 @@ import wiz.project.jan.JanPai;
 /**
  * 捨て牌
  */
-final class River implements Cloneable {
+public final class River implements Cloneable {
     
     /**
      * コンストラクタ

@@ -69,9 +69,12 @@ public final class JanGameMaster {
     
     /**
      * 初期化
+     * 
+     * @param observer ゲーム実況者
      */
     public void initialize(final Observer observer) {
         _controller = new ChmJanController(observer);
+        _observer = observer;
     }
     
     /**
@@ -94,7 +97,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -133,7 +136,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -201,7 +204,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -254,7 +257,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -289,7 +292,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -315,7 +318,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -341,7 +344,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -373,7 +376,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -421,6 +424,7 @@ public final class JanGameMaster {
 
             synchronized (_CONTROLLER_LOCK) {
                 final JanInfo info = _controller.getGameInfo();
+                info.addObserver(_observer);
                 info.notifyObservers(AnnounceFlag.GAME_END);
             }
         }
@@ -433,6 +437,7 @@ public final class JanGameMaster {
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
             final HistoryParam param = new HistoryParam(_historyList);
+            info.addObserver(_observer);
             info.notifyObservers(param);
         }
     }
@@ -450,7 +455,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -461,6 +466,7 @@ public final class JanGameMaster {
             if (info.getConfirmMode()) {
                 flagSet.add(AnnounceFlag.CONFIRM);
             }
+            info.addObserver(_observer);
             info.notifyObservers(flagSet);
         }
     }
@@ -478,7 +484,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -493,7 +499,7 @@ public final class JanGameMaster {
         }
 
         if (paiList.isEmpty()) {
-            System.out.println("Outs target JanPai is empty.");
+            announceError("Outs target JanPai is empty.");
             return;
         }
         synchronized (_CONTROLLER_LOCK) {
@@ -504,18 +510,18 @@ public final class JanGameMaster {
                 flagSet.add(AnnounceFlag.CONFIRM);
             }
             final AnnounceParam param = new AnnounceParam(flagSet, paiList);
+            info.addObserver(_observer);
             info.notifyObservers(param);
         }
     }
 
     /**
      * ランキングの表示
-     *
-     * @throws JanException ゲーム処理エラー。
      */
-    public void onRanking() throws JanException {
+    public void onRanking() {
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
+            info.addObserver(_observer);
             info.notifyObservers(AnnounceFlag.RANKING);
         }
     }
@@ -536,7 +542,7 @@ public final class JanGameMaster {
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
-                System.out.println("--- Already started ---");
+                announceError("--- Already started ---");
                 return;
             }
             _status = GameStatus.PLAYING_SOLO;
@@ -544,7 +550,7 @@ public final class JanGameMaster {
 
         if (!Files.exists(Paths.get(DECK_SAVE_PATH)) ||
             !Files.exists(Paths.get(PLAYER_TABLE_SAVE_PATH))) {
-            System.out.println("--- Replay data is not found ---");
+            announceError("--- Replay data is not found ---");
             return;
         }
 
@@ -589,7 +595,7 @@ public final class JanGameMaster {
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
-                System.out.println("--- Already started ---");
+                announceError("--- Already started ---");
                 return;
             }
             _status = GameStatus.PLAYING_SOLO;
@@ -597,7 +603,7 @@ public final class JanGameMaster {
 
         if (!Files.exists(Paths.get(DECK_SAVE_PATH)) ||
             !Files.exists(Paths.get(PLAYER_TABLE_SAVE_PATH))) {
-            System.out.println("--- Replay data is not found ---");
+            announceError("--- Replay data is not found ---");
             return;
         }
 
@@ -642,7 +648,7 @@ public final class JanGameMaster {
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
-                System.out.println("--- Already started ---");
+                announceError("--- Already started ---");
                 return;
             }
             _status = GameStatus.PLAYING_SOLO;
@@ -693,7 +699,7 @@ public final class JanGameMaster {
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
-                System.out.println("--- Already started ---");
+                announceError("--- Already started ---");
                 return;
             }
             _status = GameStatus.PLAYING_SOLO;
@@ -742,6 +748,7 @@ public final class JanGameMaster {
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
             final StatisticsParam param = new StatisticsParam(name, option);
+            info.addObserver(_observer);
             info.notifyObservers(param);
         }
     }
@@ -762,7 +769,7 @@ public final class JanGameMaster {
         // 開始済み判定
         synchronized (_STATUS_LOCK) {
             if (!_status.isIdle()) {
-                System.out.println("--- Already started ---");
+                announceError("--- Already started ---");
                 return;
             }
             _status = GameStatus.PLAYING_SOLO;
@@ -770,7 +777,7 @@ public final class JanGameMaster {
 
         if (!Files.exists(Paths.get(TEST_DECK_SAVE_PATH)) ||
             !Files.exists(Paths.get(TEST_PLAYER_TABLE_SAVE_PATH))) {
-            System.out.println("--- Test data is not found ---");
+            announceError("--- Test data is not found ---");
             return;
         }
 
@@ -807,7 +814,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -816,7 +823,7 @@ public final class JanGameMaster {
             final boolean onGame = _controller.getOnGame();
 
             if (!onGame) {
-                System.out.println("Game is not started.");
+                announceError("Game is not started.");
                 return;
             }
             undo(name);
@@ -836,7 +843,7 @@ public final class JanGameMaster {
         // 開始判定
         synchronized (_STATUS_LOCK) {
             if (_status.isIdle()) {
-                System.out.println("--- Not started ---");
+                announceError("--- Not started ---");
                 return;
             }
         }
@@ -851,7 +858,7 @@ public final class JanGameMaster {
         }
 
         if (paiList.isEmpty()) {
-            System.out.println("Watch target JanPai is empty.");
+            announceError("Watch target JanPai is empty.");
             return;
         }
         synchronized (_CONTROLLER_LOCK) {
@@ -873,11 +880,24 @@ public final class JanGameMaster {
         synchronized (_CONTROLLER_LOCK) {
             final JanInfo info = _controller.getGameInfo();
             final YakuParam param = new YakuParam(name, option);
+            info.addObserver(_observer);
             info.notifyObservers(param);
         }
     }
 
 
+
+    /**
+     * エラーを通知
+     *
+     * @param message メッセージ。
+     */
+    private void announceError(final String message) {
+        final JanInfo info = _controller.getGameInfo();
+        final AnnounceParam param = new AnnounceParam(AnnounceFlag.ERROR, message);
+        info.addObserver(_observer);
+        info.notifyObservers(param);
+    }
 
     /**
      * 牌山を取得
@@ -1033,7 +1053,7 @@ public final class JanGameMaster {
      * @return 中国麻雀コントローラ。
      */
     private JanController createChmJanController() {
-        return new ChmJanController();
+        return new ChmJanController(_observer);
     }
 
     /**
@@ -1053,7 +1073,7 @@ public final class JanGameMaster {
      * @return 麻雀コントローラ。
      */
     private JanController createJanController() {
-        return new SoloJanController();
+        return new SoloJanController(_observer);
     }
 
     /**
@@ -1090,7 +1110,7 @@ public final class JanGameMaster {
         final int size = _historyList.size();
 
         if (size <= 1) {
-            System.out.println("--- No command ---");
+            announceError("--- No command ---");
             return;
         }
         _historyList.pollLast();
@@ -1191,6 +1211,11 @@ public final class JanGameMaster {
 
 
 
+    /**
+     * ゲーム実況者
+     */
+    private Observer _observer = null;
+    
     /**
      * ゲームコントローラ
      */

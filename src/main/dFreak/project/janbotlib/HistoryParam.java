@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * コマンド履歴パラメータ (immutable)
  */
-final class HistoryParam {
+public final class HistoryParam {
     
     /**
      * コンストラクタ

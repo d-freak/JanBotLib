@@ -159,9 +159,19 @@ public enum AnnounceFlag {
     CHANGE_WAIT,
     
     /**
-     * 副露が可能
+     * 日本麻雀
      */
-    Callable;
+    JPM,
+    
+    /**
+     * 中国麻雀
+     */
+    CHM,
+    
+    /**
+     * エラー
+     */
+    ERROR;
     
     
     

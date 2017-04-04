@@ -11,7 +11,7 @@ package dFreak.project.janbotlib;
 /**
  * コマンド履歴
  */
-final class CommandHistory {
+public final class CommandHistory {
     
     /**
      * コンストラクタ

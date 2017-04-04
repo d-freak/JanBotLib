@@ -1,5 +1,6 @@
 package dFreak.project.janbotlib;
 
+import java.util.EnumSet;
 import java.util.Observer;
 
 /**
@@ -41,10 +42,24 @@ public final class JanBotLib {
     }
     
     /**
-     * ツモ切り
+     * ツモ切りか副露せずに続行
+     */
+    public static void discardOrContinue() {
+        JanGameMaster.getInstance().onDiscardOrContinue();
+    }
+    
+    /**
+     * 終了
      */
     public static void end() {
         JanGameMaster.getInstance().onEnd();
+    }
+    
+    /**
+     * コマンド履歴表示
+     */
+    public static void history() {
+        JanGameMaster.getInstance().onHistory();
     }
     
     /**
@@ -57,7 +72,16 @@ public final class JanBotLib {
     }
     
     /**
-     * 初期化処理
+     * 情報表示
+     * 
+     * @param observer 実況者
+     */
+    public static void info(final EnumSet<AnnounceFlag> flagSet) {
+        JanGameMaster.getInstance().onInfo(flagSet);
+    }
+    
+    /**
+     * 初期化
      * 
      * @param observer 実況者
      */
@@ -83,12 +107,42 @@ public final class JanBotLib {
     }
     
     /**
+     * 指定牌の残り枚数表示
+     * 
+     * @param target 指定牌。
+     */
+    public static void outs(final String target) {
+        JanGameMaster.getInstance().onOuts(target);
+    }
+    
+    /**
      * ポン
      * 
      * @param playerName プレイヤー名。
      */
     public static void pon(final String playerName) {
         JanGameMaster.getInstance().onCallPon(playerName);
+    }
+    
+    /**
+     * ランキング表示
+     */
+    public static void ranking() {
+        JanGameMaster.getInstance().onRanking();
+    }
+    
+    /**
+     * リプレイ
+     */
+    public static void replay(final String playerName) {
+        JanGameMaster.getInstance().onReplay(playerName);
+    }
+    
+    /**
+     * 中国麻雀をリプレイ
+     */
+    public static void replayChm(final String playerName) {
+        JanGameMaster.getInstance().onReplayChm(playerName);
     }
     
     /**
@@ -115,12 +169,75 @@ public final class JanBotLib {
     }
     
     /**
+     * ゲーム統計表示
+     *
+     * @param playerName プレイヤー名。
+     */
+    public static void statistics(final String playerName) {
+        JanGameMaster.getInstance().onStatistics(playerName, "");
+    }
+    
+    /**
+     * ゲーム統計表示
+     *
+     * @param playerName プレイヤー名。
+     * @param option オプション。
+     */
+    public static void statistics(final String playerName, final String option) {
+        JanGameMaster.getInstance().onStatistics(playerName, option);
+    }
+    
+    /**
+     * 中国麻雀をテスト
+     */
+    public static void testChm(final String playerName) {
+        JanGameMaster.getInstance().onTestChm(playerName);
+    }
+    
+    /**
      * ツモ
      * 
      * @param playerName プレイヤー名。
      */
     public static void tsumo(final String playerName) {
         JanGameMaster.getInstance().onCompleteTsumo(playerName);
+    }
+    
+    /**
+     * 取り消し
+     * 
+     * @param playerName プレイヤー名。
+     */
+    public static void undo(final String playerName) {
+        JanGameMaster.getInstance().onUndo(playerName);
+    }
+    
+    /**
+     * 指定牌の残り枚数自動表示
+     * 
+     * @param target 指定牌。
+     */
+    public static void watch(final String target) {
+        JanGameMaster.getInstance().onWatch(target);
+    }
+    
+    /**
+     * 役のゲーム統計表示
+     *
+     * @param playerName プレイヤー名。
+     */
+    public static void yaku(final String playerName) {
+        JanGameMaster.getInstance().onYaku(playerName, "");
+    }
+    
+    /**
+     * 役のゲーム統計表示
+     *
+     * @param playerName プレイヤー名。
+     * @param option オプション。
+     */
+    public static void yaku(final String playerName, final String option) {
+        JanGameMaster.getInstance().onYaku(playerName, option);
     }
     
 }

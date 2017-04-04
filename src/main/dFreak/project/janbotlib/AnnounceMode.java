@@ -11,7 +11,7 @@ package dFreak.project.janbotlib;
 /**
  * 実況モード
  */
-enum AnnounceMode {
+public enum AnnounceMode {
     
     /**
      * 通常

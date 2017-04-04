@@ -353,6 +353,7 @@ public class SoloJanController implements JanController {
         synchronized (_GAME_INFO_LOCK) {
             _onGame = true;
             _info.clear();
+            _info.notifyObservers(AnnounceFlag.JPM);
             
             // 席決めと山積み
             _info.setFieldWind(Wind.TON);

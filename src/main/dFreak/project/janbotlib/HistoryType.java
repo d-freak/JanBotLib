@@ -11,7 +11,7 @@ package dFreak.project.janbotlib;
 /**
  * 履歴タイプ
  */
-enum HistoryType {
+public enum HistoryType {
     
     /**
      * 開始処理 (ソロ)

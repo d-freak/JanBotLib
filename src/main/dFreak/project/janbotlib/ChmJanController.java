@@ -370,6 +370,7 @@ class ChmJanController implements JanController {
         synchronized (_GAME_INFO_LOCK) {
             _onGame = true;
             _info.clear();
+            _info.notifyObservers(AnnounceFlag.CHM);
             
             // 席決めと山積み
             _info.setFieldWind(Wind.TON);

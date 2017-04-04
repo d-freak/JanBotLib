@@ -16,7 +16,7 @@ import wiz.project.jan.JanPai;
 /**
  * 実況パラメータ (immutable)
  */
-final class AnnounceParam {
+public final class AnnounceParam {
     
     /**
      * コンストラクタ
@@ -24,6 +24,14 @@ final class AnnounceParam {
     public AnnounceParam(final AnnounceFlag flag, final List<JanPai> paiList) {
         _flagSet = EnumSet.of(flag);
         _paiList = paiList;
+    }
+    
+    /**
+     * コンストラクタ
+     */
+    public AnnounceParam(final AnnounceFlag flag, final String message) {
+        _flagSet = EnumSet.of(flag);
+        _message = message;
     }
     
     /**
@@ -51,6 +59,13 @@ final class AnnounceParam {
     }
     
     /**
+     * メッセージを取得
+     */
+    public String getMessage() {
+        return _message;
+    }
+    
+    /**
      * 牌リストを取得
      */
     public List<JanPai> getPaiList() {
@@ -63,6 +78,11 @@ final class AnnounceParam {
      * 実況フラグ
      */
     private EnumSet<AnnounceFlag> _flagSet = null;
+    
+    /**
+     * メッセージ
+     */
+    private String _message = null;
     
     /**
      * 牌リスト
