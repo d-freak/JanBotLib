@@ -26,7 +26,7 @@ public final class JanFreakMain {
             try {
                 // 閉じてはならない
                 final BufferedReader io = new BufferedReader(new InputStreamReader(System.in));
-                final String[] commandArray = io.readLine().split("", 2);  // 「[プレイヤー名] d ton」の形式
+                final String[] commandArray = io.readLine().split(" ", 2);  // 「[プレイヤー名] d ton」の形式
                 
                 System.out.println(commandArray);  // デバッグコード
                 
