@@ -28,15 +28,12 @@ public final class JanFreakMain {
                 final BufferedReader io = new BufferedReader(new InputStreamReader(System.in));
                 final String[] commandArray = io.readLine().split(" ", 2);  // 「[プレイヤー名] d ton」の形式
                 
-                System.out.println(commandArray);  // デバッグコード
-                
                 if (commandArray.length != 2) {
                     continue;
                 }
                 final String playerName = commandArray[0];
                 final String message = commandArray[1];
                 
-
                 if (message.equals("s") || message.equals("s chm") || message.equals("chm s")) {
                     JanBotLib.startChm(playerName);
                 }
