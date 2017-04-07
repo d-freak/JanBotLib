@@ -119,7 +119,7 @@ public class GameAnnouncer implements Observer {
      */
     protected String convertJanPaiToString(final JanPai pai) {
         final StringBuilder buf = new StringBuilder();
-        buf.append(JANPAI_PREFIX).append(pai.toString().replaceAll("[\\[\\]]", "")).append(JANPAI_SUFFIX);
+        buf.append(JANPAI_PREFIX).append(pai.toStringWithoutBracket()).append(JANPAI_SUFFIX);
         return buf.toString();
     }
     
