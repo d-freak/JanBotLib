@@ -998,7 +998,7 @@ public class GameAnnouncer implements Observer {
      * 雀牌固定文字列
      */
     private static final String JANPAI_PREFIX = ":jan-";
-    private static final String JANPAI_SUFFIX = ": ";
+    private static final String JANPAI_SUFFIX = ":";
     
     
     
