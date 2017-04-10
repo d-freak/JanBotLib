@@ -21,6 +21,7 @@ import java.util.Observer;
 import java.util.TreeMap;
 
 import dFreak.project.janbotlib.exception.CallableException;
+import dFreak.project.janbotlib.exception.GameSetException;
 import dFreak.project.janbotlib.exception.InvalidInputException;
 import dFreak.project.janbotlib.exception.JanException;
 import dFreak.project.janbotlib.statistics.StatisticsParam;
@@ -331,6 +332,9 @@ public final class JanGameMaster {
             }
             catch (final CallableException e) {
             }
+            catch (final GameSetException e) {
+                onGameSet(e.getStatus());
+            }
             catch (final JanException e) {
                 _historyList.pollLast();
             }
@@ -356,6 +360,9 @@ public final class JanGameMaster {
                 _controller.discard();
             }
             catch (final CallableException e) {
+            }
+            catch (final GameSetException e) {
+                onGameSet(e.getStatus());
             }
             catch (final JanException e) {
                 _historyList.pollLast();
@@ -389,6 +396,9 @@ public final class JanGameMaster {
                 _controller.discard(targetPai);
             }
             catch (final CallableException e) {
+            }
+            catch (final GameSetException e) {
+                onGameSet(e.getStatus());
             }
             catch (final JanException e) {
                 _historyList.pollLast();
@@ -900,55 +910,6 @@ public final class JanGameMaster {
     }
 
     /**
-     * 牌山を取得
-     *
-     * @param path 牌山のパス。
-     * @return 牌山。
-     */
-    @SuppressWarnings("unchecked")
-	private List<JanPai> getDeck(final String path) {
-        List<JanPai> deck = new ArrayList<JanPai>();
-        try {
-            deck = (List<JanPai>)Serializer.read(path);
-        }
-        catch (IOException e) {
-        }
-        return deck;
-    }
-
-    /**
-     * プレイヤーテーブルを取得
-     *
-     * @param path プレイヤーテーブルのパス。
-     * @return プレイヤーテーブル。
-     */
-    @SuppressWarnings("unchecked")
-	private Map<Wind, Player> getPlayerTable(final String path) {
-        Map<Wind, Player> playerTable = new TreeMap<Wind, Player>();
-        try {
-        	playerTable = (Map<Wind, Player>)Serializer.read(path);
-        }
-        catch (IOException e) {
-        }
-        return playerTable;
-    }
-
-    /**
-     * プレイヤーの風を取得
-     *
-     * @param playerTable プレイヤーテーブル。
-     * @return プレイヤーの風。
-     */
-    private Wind getPlayerWind(final Map<Wind, Player> playerTable) {
-        for (final Map.Entry<Wind, Player> entry : playerTable.entrySet()) {
-            if (entry.getValue().getType() != PlayerType.COM) {
-                return entry.getKey();
-            }
-        }
-        throw new InternalError();
-    }
-
-    /**
      * 文字列を牌に変換
      *
      * @param source 変換元。
@@ -1102,6 +1063,70 @@ public final class JanGameMaster {
     }
 
     /**
+     * 牌山を取得
+     *
+     * @param path 牌山のパス。
+     * @return 牌山。
+     */
+    @SuppressWarnings("unchecked")
+	private List<JanPai> getDeck(final String path) {
+        List<JanPai> deck = new ArrayList<JanPai>();
+        try {
+            deck = (List<JanPai>)Serializer.read(path);
+        }
+        catch (IOException e) {
+        }
+        return deck;
+    }
+
+    /**
+     * プレイヤーテーブルを取得
+     *
+     * @param path プレイヤーテーブルのパス。
+     * @return プレイヤーテーブル。
+     */
+    @SuppressWarnings("unchecked")
+	private Map<Wind, Player> getPlayerTable(final String path) {
+        Map<Wind, Player> playerTable = new TreeMap<Wind, Player>();
+        try {
+        	playerTable = (Map<Wind, Player>)Serializer.read(path);
+        }
+        catch (IOException e) {
+        }
+        return playerTable;
+    }
+
+    /**
+     * プレイヤーの風を取得
+     *
+     * @param playerTable プレイヤーテーブル。
+     * @return プレイヤーの風。
+     */
+    private Wind getPlayerWind(final Map<Wind, Player> playerTable) {
+        for (final Map.Entry<Wind, Player> entry : playerTable.entrySet()) {
+            if (entry.getValue().getType() != PlayerType.COM) {
+                return entry.getKey();
+            }
+        }
+        throw new InternalError();
+    }
+
+    /**
+     * ゲーム終了時の処理
+     *
+     * @param status ゲーム終了状態。
+     */
+    private void onGameSet(final GameSetStatus status) {
+        switch (status) {
+        case GAME_OVER:
+            onInfo(ANNOUNCE_FLAG_GAME_OVER);
+            break;
+        default:
+            throw new InternalError();
+        }
+    }
+
+    /**
      * 取り消し
      *
      * @param name プレイヤー名。
@@ -1196,6 +1221,12 @@ public final class JanGameMaster {
         Collections.unmodifiableList(Arrays.asList(new Player("COM_01", PlayerType.COM),
                                                    new Player("COM_02", PlayerType.COM),
                                                    new Player("COM_03", PlayerType.COM)));
+
+    /**
+     * 実況フラグ
+     */
+    private static final EnumSet<AnnounceFlag> ANNOUNCE_FLAG_GAME_OVER =
+        EnumSet.of(AnnounceFlag.GAME_OVER, AnnounceFlag.FIELD, AnnounceFlag.RIVER_SINGLE, AnnounceFlag.HAND);
 
 
 
