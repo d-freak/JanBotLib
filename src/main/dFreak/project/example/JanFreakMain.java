@@ -1,5 +1,7 @@
 /**
  * JanFreakMain.java
+ *
+ * @author D-freak
  */
 
 package dFreak.project.example;
@@ -147,6 +149,14 @@ public final class JanFreakMain {
                     final List<String> messageList =
                         Arrays.asList("jpm s：日本麻雀を開始   jpm replay：日本麻雀でリプレイ");
                     System.out.println(messageList);
+                }
+                else if (message.equals("emoji")) {
+                    JanBotLib.initialize(new GameAnnouncer());
+                    System.out.println("麻雀牌を絵文字で表示します。");
+                }
+                else if (message.equals("text")) {
+                    JanBotLib.initialize(new TextAnnouncer());
+                    System.out.println("麻雀牌を文字列で表示します。");
                 }
                 Thread.sleep(100);  // CPUリソース浪費対策
             }

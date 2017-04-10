@@ -1,7 +1,7 @@
 /**
  * GameAnnouncer.java
  *
- * @author Yuki
+ * @author D-freak
  */
 
 package dFreak.project.example;
@@ -100,14 +100,17 @@ public class GameAnnouncer implements Observer {
     
     
     /**
-     * 副露された雀牌を文字列に変換
+     * 暗槓牌を文字列に変換
      *
-     * @param pai 副露された雀牌。
+     * @param pai 暗槓牌。
      * @return 変換結果。
      */
-    protected String convertCalledJanPaiToString(final JanPai pai) {
+    protected String convertAnkanToString(final JanPai pai) {
         final StringBuilder buf = new StringBuilder();
-        buf.append(pai);
+        buf.append(JANPAI_PREFIX).append("ura").append(JANPAI_SUFFIX);
+        buf.append(convertJanPaiToString(pai));
+        buf.append(convertJanPaiToString(pai));
+        buf.append(JANPAI_PREFIX).append("ura").append(JANPAI_SUFFIX);
         return buf.toString();
     }
     
@@ -123,249 +126,19 @@ public class GameAnnouncer implements Observer {
         return buf.toString();
     }
     
-    /**
-     * 状況更新時の処理
-     *
-     * @param info 麻雀ゲーム情報。
-     * @param param 更新パラメータ。
-     */
-    protected void updateOnSolo(final JanInfo info, final AnnounceParam param) {
-        if (info == null) {
-            throw new NullPointerException("Game information is null.");
-        }
-        if (param == null) {
-            throw new NullPointerException("Announce parameter is null.");
-        }
-        
-        final EnumSet<AnnounceFlag> flagSet = param.getFlagSet();
-        
-        if (flagSet.contains(AnnounceFlag.JPM)) {
-            _isChm = false;
-            return;
-        }
-        if (flagSet.contains(AnnounceFlag.CHM)) {
-            _isChm = true;
-            return;
-        }
-        final Wind playerWind = getPlayerWind(info);
-        final List<String> messageList = new ArrayList<>();
-        final int turnCount = info.getTurnCount(playerWind);
-        if (isCallable(flagSet)) {
-            messageList.add(convertCallInfoToString(info.getActiveDiscard(), flagSet));
-            messageList.add("(詳細：「jan help」を参照)");
-        }
-        if (isSelectingDiscard(flagSet)) {
-            messageList.add(turnCount + "巡目");
-        }
-        if (flagSet.contains(AnnounceFlag.AFTER_CALL)) {
-            messageList.add("捨て牌を選んでください");
-        }
-        if (flagSet.contains(AnnounceFlag.FIELD)) {
-            messageList.add(convertFieldToString(playerWind, info, flagSet.contains(AnnounceFlag.URA_DORA)));
-        }
-        if (flagSet.contains(AnnounceFlag.RIVER_SINGLE)) {
-            messageList.add(convertRiverToString(info.getRiver(playerWind)));
-        }
-        if (flagSet.contains(AnnounceFlag.RIVER_ALL)) {
-            // 出力文字数制限対策
-            // 分割して出力バッファに渡す
-            System.out.println(messageList);
-            System.out.println("東" + convertRiverToString(info.getRiver(Wind.TON)));
-            System.out.println("南" + convertRiverToString(info.getRiver(Wind.NAN)));
-            System.out.println("西" + convertRiverToString(info.getRiver(Wind.SHA)));
-            System.out.println("北" + convertRiverToString(info.getRiver(Wind.PEI)));
-            messageList.clear();
-        }
-        final boolean isConfirm = flagSet.contains(AnnounceFlag.CONFIRM);
-        
-        if (flagSet.contains(AnnounceFlag.HAND)) {
-            messageList.add(convertHandToString(playerWind, info, flagSet));
-            
-            if (isSelectingDiscard(flagSet)) {
-                List<JanPai> paiList = new ArrayList<>();
-                
-                switch (_announceMode) {
-                case WATCH:
-                    paiList = info.getWatchingJanPaiList();
-                    messageList.addAll(getOutsString(info, isConfirm, paiList));
-                    break;
-                case SEVENTH:
-                    if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
-                        paiList = info.getOddJanPaiList(playerWind, true);
-                    }
-                    else {
-                        paiList = info.getOddJanPaiList(playerWind, false);
-                    }
-                    messageList.addAll(getSeventhOutsString(info, isConfirm, paiList));
-                    break;
-                default:
-                }
-            }
-        }
-        if (flagSet.contains(AnnounceFlag.WATCHING_START)) {
-            _announceMode = AnnounceMode.WATCH;
-            messageList.add("監視モードを有効にしました。");
-            
-            final List<JanPai> paiList = info.getWatchingJanPaiList();
-            messageList.addAll(getOutsString(info, isConfirm, paiList));
-        }
-        if (flagSet.contains(AnnounceFlag.WATCHING_END)) {
-            if (AnnounceMode.WATCH.equals(_announceMode)) {
-                _announceMode = AnnounceMode.NORMAL;
-                messageList.add("監視モードを無効にしました。");
-            }
-        }
-        if (flagSet.contains(AnnounceFlag.OUTS)) {
-            final List<JanPai> paiList = param.getPaiList();
-            
-            messageList.addAll(getOutsString(info, isConfirm, paiList));
-        }
-        if (flagSet.contains(AnnounceFlag.SEVENTH)) {
-            if (AnnounceMode.SEVENTH.equals(_announceMode)) {
-                _announceMode = AnnounceMode.NORMAL;
-                messageList.add("七対モードを無効にしました。");
-            }
-            else {
-                _announceMode = AnnounceMode.SEVENTH;
-                messageList.add("七対モードを有効にしました。");
-                
-                List<JanPai> paiList = new ArrayList<>();
-                
-                if (isConfirm) {
-                    paiList = info.getOddJanPaiList(playerWind, false);
-                }
-                else {
-                    paiList = info.getOddJanPaiList(playerWind, true);
-                }
-                messageList.addAll(getSeventhOutsString(info, isConfirm, paiList));
-            }
-        }
-        if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
-            messageList.add("---- ロン和了(" + turnCount + "巡目) ----");
-            recordResultXml(info);
-        }
-        else if (flagSet.contains(AnnounceFlag.COMPLETE_TSUMO)) {
-            messageList.add("---- ツモ和了(" + turnCount + "巡目) ----");
-            recordResultXml(info);
-        }
-        else if (flagSet.contains(AnnounceFlag.GAME_OVER)) {
-            messageList.add("---- 流局 ----");
-            recordResultXml(info);
-        }
-        
-        if (flagSet.contains(AnnounceFlag.GAME_END)) {
-            messageList.add("--- 終了 ---");
-            _announceMode = AnnounceMode.NORMAL;
-        }
-        
-        if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT)) {
-            final int completableTurn = info.getCompletableTurnCount(playerWind);
-            
-            messageList.add(completableTurn + "巡目で8点縛りを超えました。");
-            
-            final List<JanPai> paiList = info.getCompletableJanPaiList(playerWind);
-            
-            messageList.addAll(getWaitingOutsString(info, flagSet, paiList));
-        }
-        
-        if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT_AND_NO_OUTS)) {
-            messageList.add("8点縛りを超えていますが、和了牌がありません。");
-        }
-        
-        if (flagSet.contains(AnnounceFlag.END_OVER_TIED_POINT)) {
-            messageList.add("8点縛り超えが終了しました。");
-        }
-        
-        if (flagSet.contains(AnnounceFlag.NOT_OVER_TIED_POINT)) {
-            final int totalPoint = info.getCompleteInfo().getTotalPoint();
-            
-            messageList.add((8 - totalPoint) + "点足りません");
-        }
-        
-        if (flagSet.contains(AnnounceFlag.CHANGE_WAIT)) {
-            messageList.add("待ちが変わりました。");
-            
-            final List<JanPai> paiList = info.getCompletableJanPaiList(playerWind);
-            
-            messageList.addAll(getWaitingOutsString(info, flagSet, paiList));
-        }
-        
-        if (flagSet.contains(AnnounceFlag.RANKING)) {
-            messageList.addAll(getRankingString());
-        }
-        
-        if (flagSet.contains(AnnounceFlag.ERROR)) {
-            final String message = param.getMessage();
-            
-            messageList.add(message);
-        }
-        printMessage(messageList);
-        
-        if (flagSet.contains(AnnounceFlag.SCORE)) {
-            final ChmCompleteInfo completeInfo = info.getCompleteInfo();
-            
-            printCompleteInfo(completeInfo);
-        }
-    }
+    
     
     /**
-     * 状況更新時の処理
+     * 副露された雀牌を文字列に変換
      *
-     * @param info 麻雀ゲーム情報。
-     * @param param 更新パラメータ。
+     * @param pai 副露された雀牌。
+     * @return 変換結果。
      */
-    protected void updateOnSolo(final JanInfo info, final HistoryParam param) {
-        if (info == null) {
-            throw new NullPointerException("Game information is null.");
-        }
-        if (param == null) {
-            throw new NullPointerException("History parameter is null.");
-        }
-        final List<String> messageList = new ArrayList<>();
-        messageList.addAll(getHistoryString(param));
-        
-        printMessage(messageList);
+    private String convertCalledJanPaiToString(final JanPai pai) {
+        final StringBuilder buf = new StringBuilder();
+        buf.append(pai);
+        return buf.toString();
     }
-    
-    /**
-     * 状況更新時の処理
-     *
-     * @param info 麻雀ゲーム情報。
-     * @param param 更新パラメータ。
-     */
-    protected void updateOnSolo(final JanInfo info, final StatisticsParam param) {
-        if (info == null) {
-            throw new NullPointerException("Game information is null.");
-        }
-        if (param == null) {
-            throw new NullPointerException("Statistics parameter is null.");
-        }
-        final List<String> messageList = new ArrayList<>();
-        messageList.addAll(getStatisticsString(param));
-        
-        printMessage(messageList);
-    }
-    
-    /**
-     * 状況更新時の処理
-     *
-     * @param info 麻雀ゲーム情報。
-     * @param param 更新パラメータ。
-     */
-    protected void updateOnSolo(final JanInfo info, final YakuParam param) {
-        if (info == null) {
-            throw new NullPointerException("Game information is null.");
-        }
-        if (param == null) {
-            throw new NullPointerException("YakuStatistics parameter is null.");
-        }
-        final List<String> messageList = new ArrayList<>();
-        messageList.addAll(getYakuStatisticsString(param));
-        
-        printMessage(messageList);
-    }
-    
-    
     
     /**
      * 副露情報を文字列に変換
@@ -453,10 +226,7 @@ public class GameAnnouncer implements Observer {
             if (fixedMenTsu.getMenTsuType() == MenTsuType.KAN_DARK) {
                 final JanPai pai = sourceList.get(0);
                 
-                buf.append(JANPAI_PREFIX).append("ura").append(JANPAI_SUFFIX);
-                buf.append(convertJanPaiToString(pai));
-                buf.append(convertJanPaiToString(pai));
-                buf.append(JANPAI_PREFIX).append("ura").append(JANPAI_SUFFIX);
+                buf.append(convertAnkanToString(pai));
             }
             else {
                 for (final JanPai pai : sourceList) {
@@ -986,6 +756,248 @@ public class GameAnnouncer implements Observer {
             } catch (IOException e) {
             }
         }
+    }
+    
+    /**
+     * 状況更新時の処理
+     *
+     * @param info 麻雀ゲーム情報。
+     * @param param 更新パラメータ。
+     */
+    private void updateOnSolo(final JanInfo info, final AnnounceParam param) {
+        if (info == null) {
+            throw new NullPointerException("Game information is null.");
+        }
+        if (param == null) {
+            throw new NullPointerException("Announce parameter is null.");
+        }
+        
+        final EnumSet<AnnounceFlag> flagSet = param.getFlagSet();
+        
+        if (flagSet.contains(AnnounceFlag.JPM)) {
+            _isChm = false;
+            return;
+        }
+        if (flagSet.contains(AnnounceFlag.CHM)) {
+            _isChm = true;
+            return;
+        }
+        final Wind playerWind = getPlayerWind(info);
+        final List<String> messageList = new ArrayList<>();
+        final int turnCount = info.getTurnCount(playerWind);
+        if (isCallable(flagSet)) {
+            messageList.add(convertCallInfoToString(info.getActiveDiscard(), flagSet));
+            messageList.add("(詳細：「jan help」を参照)");
+        }
+        if (isSelectingDiscard(flagSet)) {
+            messageList.add(turnCount + "巡目");
+        }
+        if (flagSet.contains(AnnounceFlag.AFTER_CALL)) {
+            messageList.add("捨て牌を選んでください");
+        }
+        if (flagSet.contains(AnnounceFlag.FIELD)) {
+            messageList.add(convertFieldToString(playerWind, info, flagSet.contains(AnnounceFlag.URA_DORA)));
+        }
+        if (flagSet.contains(AnnounceFlag.RIVER_SINGLE)) {
+            messageList.add(convertRiverToString(info.getRiver(playerWind)));
+        }
+        if (flagSet.contains(AnnounceFlag.RIVER_ALL)) {
+            // 出力文字数制限対策
+            // 分割して出力バッファに渡す
+            System.out.println(messageList);
+            System.out.println("東" + convertRiverToString(info.getRiver(Wind.TON)));
+            System.out.println("南" + convertRiverToString(info.getRiver(Wind.NAN)));
+            System.out.println("西" + convertRiverToString(info.getRiver(Wind.SHA)));
+            System.out.println("北" + convertRiverToString(info.getRiver(Wind.PEI)));
+            messageList.clear();
+        }
+        final boolean isConfirm = flagSet.contains(AnnounceFlag.CONFIRM);
+        
+        if (flagSet.contains(AnnounceFlag.HAND)) {
+            messageList.add(convertHandToString(playerWind, info, flagSet));
+            
+            if (isSelectingDiscard(flagSet)) {
+                List<JanPai> paiList = new ArrayList<>();
+                
+                switch (_announceMode) {
+                case WATCH:
+                    paiList = info.getWatchingJanPaiList();
+                    messageList.addAll(getOutsString(info, isConfirm, paiList));
+                    break;
+                case SEVENTH:
+                    if (flagSet.contains(AnnounceFlag.ACTIVE_TSUMO)) {
+                        paiList = info.getOddJanPaiList(playerWind, true);
+                    }
+                    else {
+                        paiList = info.getOddJanPaiList(playerWind, false);
+                    }
+                    messageList.addAll(getSeventhOutsString(info, isConfirm, paiList));
+                    break;
+                default:
+                }
+            }
+        }
+        if (flagSet.contains(AnnounceFlag.WATCHING_START)) {
+            _announceMode = AnnounceMode.WATCH;
+            messageList.add("監視モードを有効にしました。");
+            
+            final List<JanPai> paiList = info.getWatchingJanPaiList();
+            messageList.addAll(getOutsString(info, isConfirm, paiList));
+        }
+        if (flagSet.contains(AnnounceFlag.WATCHING_END)) {
+            if (AnnounceMode.WATCH.equals(_announceMode)) {
+                _announceMode = AnnounceMode.NORMAL;
+                messageList.add("監視モードを無効にしました。");
+            }
+        }
+        if (flagSet.contains(AnnounceFlag.OUTS)) {
+            final List<JanPai> paiList = param.getPaiList();
+            
+            messageList.addAll(getOutsString(info, isConfirm, paiList));
+        }
+        if (flagSet.contains(AnnounceFlag.SEVENTH)) {
+            if (AnnounceMode.SEVENTH.equals(_announceMode)) {
+                _announceMode = AnnounceMode.NORMAL;
+                messageList.add("七対モードを無効にしました。");
+            }
+            else {
+                _announceMode = AnnounceMode.SEVENTH;
+                messageList.add("七対モードを有効にしました。");
+                
+                List<JanPai> paiList = new ArrayList<>();
+                
+                if (isConfirm) {
+                    paiList = info.getOddJanPaiList(playerWind, false);
+                }
+                else {
+                    paiList = info.getOddJanPaiList(playerWind, true);
+                }
+                messageList.addAll(getSeventhOutsString(info, isConfirm, paiList));
+            }
+        }
+        if (flagSet.contains(AnnounceFlag.COMPLETE_RON)) {
+            messageList.add("---- ロン和了(" + turnCount + "巡目) ----");
+            recordResultXml(info);
+        }
+        else if (flagSet.contains(AnnounceFlag.COMPLETE_TSUMO)) {
+            messageList.add("---- ツモ和了(" + turnCount + "巡目) ----");
+            recordResultXml(info);
+        }
+        else if (flagSet.contains(AnnounceFlag.GAME_OVER)) {
+            messageList.add("---- 流局 ----");
+            recordResultXml(info);
+        }
+        
+        if (flagSet.contains(AnnounceFlag.GAME_END)) {
+            messageList.add("--- 終了 ---");
+            _announceMode = AnnounceMode.NORMAL;
+        }
+        
+        if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT)) {
+            final int completableTurn = info.getCompletableTurnCount(playerWind);
+            
+            messageList.add(completableTurn + "巡目で8点縛りを超えました。");
+            
+            final List<JanPai> paiList = info.getCompletableJanPaiList(playerWind);
+            
+            messageList.addAll(getWaitingOutsString(info, flagSet, paiList));
+        }
+        
+        if (flagSet.contains(AnnounceFlag.OVER_TIED_POINT_AND_NO_OUTS)) {
+            messageList.add("8点縛りを超えていますが、和了牌がありません。");
+        }
+        
+        if (flagSet.contains(AnnounceFlag.END_OVER_TIED_POINT)) {
+            messageList.add("8点縛り超えが終了しました。");
+        }
+        
+        if (flagSet.contains(AnnounceFlag.NOT_OVER_TIED_POINT)) {
+            final int totalPoint = info.getCompleteInfo().getTotalPoint();
+            
+            messageList.add((8 - totalPoint) + "点足りません");
+        }
+        
+        if (flagSet.contains(AnnounceFlag.CHANGE_WAIT)) {
+            messageList.add("待ちが変わりました。");
+            
+            final List<JanPai> paiList = info.getCompletableJanPaiList(playerWind);
+            
+            messageList.addAll(getWaitingOutsString(info, flagSet, paiList));
+        }
+        
+        if (flagSet.contains(AnnounceFlag.RANKING)) {
+            messageList.addAll(getRankingString());
+        }
+        
+        if (flagSet.contains(AnnounceFlag.ERROR)) {
+            final String message = param.getMessage();
+            
+            messageList.add(message);
+        }
+        printMessage(messageList);
+        
+        if (flagSet.contains(AnnounceFlag.SCORE)) {
+            final ChmCompleteInfo completeInfo = info.getCompleteInfo();
+            
+            printCompleteInfo(completeInfo);
+        }
+    }
+    
+    /**
+     * 状況更新時の処理
+     *
+     * @param info 麻雀ゲーム情報。
+     * @param param 更新パラメータ。
+     */
+    private void updateOnSolo(final JanInfo info, final HistoryParam param) {
+        if (info == null) {
+            throw new NullPointerException("Game information is null.");
+        }
+        if (param == null) {
+            throw new NullPointerException("History parameter is null.");
+        }
+        final List<String> messageList = new ArrayList<>();
+        messageList.addAll(getHistoryString(param));
+        
+        printMessage(messageList);
+    }
+    
+    /**
+     * 状況更新時の処理
+     *
+     * @param info 麻雀ゲーム情報。
+     * @param param 更新パラメータ。
+     */
+    private void updateOnSolo(final JanInfo info, final StatisticsParam param) {
+        if (info == null) {
+            throw new NullPointerException("Game information is null.");
+        }
+        if (param == null) {
+            throw new NullPointerException("Statistics parameter is null.");
+        }
+        final List<String> messageList = new ArrayList<>();
+        messageList.addAll(getStatisticsString(param));
+        
+        printMessage(messageList);
+    }
+    
+    /**
+     * 状況更新時の処理
+     *
+     * @param info 麻雀ゲーム情報。
+     * @param param 更新パラメータ。
+     */
+    private void updateOnSolo(final JanInfo info, final YakuParam param) {
+        if (info == null) {
+            throw new NullPointerException("Game information is null.");
+        }
+        if (param == null) {
+            throw new NullPointerException("YakuStatistics parameter is null.");
+        }
+        final List<String> messageList = new ArrayList<>();
+        messageList.addAll(getYakuStatisticsString(param));
+        
+        printMessage(messageList);
     }
     
     
