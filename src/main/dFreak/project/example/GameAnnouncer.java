@@ -848,13 +848,9 @@ public class GameAnnouncer implements Observer {
      * @param messageList メッセージリスト。
      */
     private void printMessage(final List<String> messageList) {
-        final int maxLineCount = 6;
-        int lineCount = 0;
-        
-        for (; messageList.size() - lineCount > maxLineCount; lineCount += maxLineCount) {
-            System.out.println(messageList.subList(lineCount, lineCount + maxLineCount));
+        for (final String message : messageList) {
+            System.out.println(message);
         }
-        System.out.println(messageList.subList(lineCount, messageList.size()));
     }
     
     /**
