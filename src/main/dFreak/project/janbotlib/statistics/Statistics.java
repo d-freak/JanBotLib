@@ -28,14 +28,14 @@ public final class Statistics {
     /**
      * コンストラクタ
      */
-    public Statistics(final String playerName, int start, int end) throws DocumentException, InvalidInputException {
-        final List<String> playerNameList = getPlayerNameList(playerName);
+    public Statistics(final String configDirPath, final String playerName, int start, int end) throws DocumentException, InvalidInputException {
+        final List<String> playerNameList = getPlayerNameList(configDirPath, playerName);
         final boolean isAll = playerNameList.size() > 1 ? true : false;
         start = isAll ? 0 : start;
         end = isAll ? 0 : end;
 
         for (final String player : playerNameList) {
-            _statisticsTable.put(player, new PersonalStatistics(player, start, end));
+            _statisticsTable.put(player, new PersonalStatistics(configDirPath, player, start, end));
         }
     }
 
@@ -495,11 +495,11 @@ public final class Statistics {
      *
      * @return プレイヤーの名前リスト。
      */
-    private List<String> getPlayerNameList(final String playerName) {
+    private List<String> getPlayerNameList(final String configDirPath, final String playerName) {
         final List<String> playerNameList = new ArrayList<>();
 
         if ("all".equals(playerName)){
-            final File dir = new File(".");
+            final File dir = new File(configDirPath);
             final File[] files = dir.listFiles();
             final String reg = ".*\\.xml$";
 

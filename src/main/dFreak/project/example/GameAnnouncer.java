@@ -59,8 +59,11 @@ public class GameAnnouncer implements Observer {
     
     /**
      * コンストラクタ
+     * 
+     * @param configDirPath 設定ファイルパス
      */
-    public GameAnnouncer() {
+    public GameAnnouncer(final String configDirPath) {
+        _configDirPath = configDirPath + "/";
     }
     
     
@@ -373,7 +376,7 @@ public class GameAnnouncer implements Observer {
         Statistics statistics = null;
         
         try {
-            statistics = new Statistics("all", 0, 0);
+            statistics = new Statistics(_configDirPath, "all", 0, 0);
         }
         catch (DocumentException e) {
             messageList.add("プレイヤーの記録がありません。");
@@ -489,7 +492,7 @@ public class GameAnnouncer implements Observer {
         Statistics statistics = null;
         
         try {
-            statistics = new Statistics(playerName, start, end);
+            statistics = new Statistics(_configDirPath, playerName, start, end);
         }
         catch (DocumentException e) {
             messageList.add(playerName + "というプレイヤーの記録はありません。");
@@ -536,7 +539,7 @@ public class GameAnnouncer implements Observer {
         Statistics statistics = null;
         
         try {
-            statistics = new Statistics(playerName, start, end);
+            statistics = new Statistics(_configDirPath, playerName, start, end);
         }
         catch (DocumentException e) {
             messageList.add(playerName + "というプレイヤーの記録はありません。");
@@ -687,7 +690,7 @@ public class GameAnnouncer implements Observer {
         final Document writeDocument = DocumentHelper.createDocument();
         final Element writeRoot = writeDocument.addElement("results");
         final String playerName = info.getPlayer(wind).getName();
-        final String path = "./" + playerName + ".xml";
+        final String path = _configDirPath + playerName + ".xml";
         try {
             final SAXReader reader = new SAXReader();
             final Document readDocument = reader.read(path);
@@ -1019,6 +1022,11 @@ public class GameAnnouncer implements Observer {
      * 実況モード
      */
     private AnnounceMode _announceMode = AnnounceMode.NORMAL;
+    
+    /**
+     * 設定ファイルパス
+     */
+    private String _configDirPath = ".";
     
 }
 

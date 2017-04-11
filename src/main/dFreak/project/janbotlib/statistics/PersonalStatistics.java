@@ -26,8 +26,8 @@ public final class PersonalStatistics {
     /**
      * コンストラクタ
      */
-    public PersonalStatistics(final String playerName, final int start, final int end) throws DocumentException, InvalidInputException {
-        final String path = "./" + playerName + ".xml";
+    public PersonalStatistics(final String configDirPath, final String playerName, final int start, final int end) throws DocumentException, InvalidInputException {
+        final String path = configDirPath + playerName + ".xml";
         final SAXReader reader = new SAXReader();
         final Document readDocument = reader.read(path);
         final Element readRoot = readDocument.getRootElement();

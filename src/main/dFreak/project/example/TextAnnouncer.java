@@ -17,11 +17,12 @@ public class TextAnnouncer extends GameAnnouncer {
     
     /**
      * コンストラクタ
+     * 
+     * @param configDirPath 設定ファイルパス
      */
-    public TextAnnouncer() {
+    public TextAnnouncer(final String configDirPath) {
+        super(configDirPath);
     }
-    
-    
     
     /**
      * 暗槓牌を文字列に変換

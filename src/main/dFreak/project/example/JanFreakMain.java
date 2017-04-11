@@ -22,7 +22,7 @@ public final class JanFreakMain {
     public static void main(final String[] paramList) {
         final String configDirPath = paramList[0];  // 記録用XMLなどの置き場
         
-        JanBotLib.initialize(new GameAnnouncer());
+        JanBotLib.initialize(new GameAnnouncer(configDirPath));
         
         while (true) {
             try {
@@ -151,11 +151,11 @@ public final class JanFreakMain {
                     System.out.println(messageList);
                 }
                 else if (message.equals("emoji")) {
-                    JanBotLib.initialize(new GameAnnouncer());
+                    JanBotLib.initialize(new GameAnnouncer(configDirPath));
                     System.out.println("麻雀牌を絵文字で表示します。");
                 }
                 else if (message.equals("text")) {
-                    JanBotLib.initialize(new TextAnnouncer());
+                    JanBotLib.initialize(new TextAnnouncer(configDirPath));
                     System.out.println("麻雀牌を文字列で表示します。");
                 }
                 Thread.sleep(100);  // CPUリソース浪費対策
