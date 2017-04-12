@@ -31,6 +31,7 @@ public final class JanFreakMain {
                 final String[] commandArray = io.readLine().split(" ", 2);  // 「[プレイヤー名] d ton」の形式
                 
                 if (commandArray.length != 2) {
+                    Thread.sleep(100);  // CPUリソース浪費対策
                     continue;
                 }
                 final String playerName = commandArray[0];
