@@ -4,7 +4,7 @@
  * @author D-freak
  */
 
-package dFreak.project.example;
+package dFreak.project.example.java;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

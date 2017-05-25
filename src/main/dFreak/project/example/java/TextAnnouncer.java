@@ -4,7 +4,7 @@
  * @author D-freak
  */
 
-package dFreak.project.example;
+package dFreak.project.example.java;
 
 import wiz.project.jan.JanPai;
 
