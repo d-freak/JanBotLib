@@ -638,6 +638,31 @@ public class SoloJanController implements JanController {
     }
     
     /**
+     * 副露実況フラグに変換
+     *
+     * @param callTypeList 副露タイプリスト。
+     * @return 副露実況フラグ。
+     */
+    private EnumSet<AnnounceFlag> convertToCallAnnounceType(final List<CallType> callTypeList) {
+        final EnumSet<AnnounceFlag> result = EnumSet.noneOf(AnnounceFlag.class);
+        if (callTypeList.contains(CallType.RON)) {
+            result.add(AnnounceFlag.CALLABLE_RON);
+        }
+        if (callTypeList.contains(CallType.CHI)) {
+            result.add(AnnounceFlag.CALLABLE_CHI);
+        }
+        if (callTypeList.contains(CallType.PON)) {
+            result.add(AnnounceFlag.CALLABLE_PON);
+        }
+        if (callTypeList.contains(CallType.KAN_LIGHT)) {
+            result.add(AnnounceFlag.CALLABLE_KAN);
+        }
+        result.add(AnnounceFlag.FIELD);
+        result.add(AnnounceFlag.HAND);
+        return result;
+    }
+    
+    /**
      * 牌を切る
      * 
      * @param target 対象牌。
@@ -656,6 +681,7 @@ public class SoloJanController implements JanController {
                 final List<CallType> callableList = getCallableList(_info, activeWind, targetWind, target);
                 if (!callableList.isEmpty()) {
                     _info.setConfirmMode(true);
+                    _info.notifyObservers(convertToCallAnnounceType(callableList));
                     throw new CallableException(callableList);
                 }
             }
