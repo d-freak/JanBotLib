@@ -83,10 +83,11 @@ public final class JanBotLib {
     /**
      * 初期化
      * 
+     * @param configDirPath 設定保存ディレクトリパス
      * @param observer 実況者
      */
-    public static void initialize(final Observer observer) {
-        JanGameMaster.getInstance().initialize(observer);
+    public static void initialize(final String configDirPath, final Observer observer) {
+        JanGameMaster.getInstance().initialize(configDirPath, observer);
     }
     
     /**

@@ -71,11 +71,19 @@ public final class JanGameMaster {
     /**
      * 初期化
      * 
+     * @param configDirPath 設定保存ディレクトリパス
      * @param observer ゲーム実況者
      */
-    public void initialize(final Observer observer) {
+    public void initialize(final String configDirPath, final Observer observer) {
         _controller = new ChmJanController(observer);
         _observer = observer;
+        
+        if (!JanGameMaster.DECK_SAVE_PATH.contains(configDirPath)) {
+            JanGameMaster.DECK_SAVE_PATH = configDirPath + JanGameMaster.DECK_SAVE_PATH;
+            JanGameMaster.PLAYER_TABLE_SAVE_PATH = configDirPath + JanGameMaster.PLAYER_TABLE_SAVE_PATH;
+            JanGameMaster.TEST_DECK_SAVE_PATH = configDirPath + JanGameMaster.TEST_DECK_SAVE_PATH;
+            JanGameMaster.TEST_PLAYER_TABLE_SAVE_PATH = configDirPath + JanGameMaster.TEST_PLAYER_TABLE_SAVE_PATH;
+        }
     }
     
     /**
@@ -1209,10 +1217,10 @@ public final class JanGameMaster {
     /**
      * 保存パス
      */
-    private static final String DECK_SAVE_PATH         = "./deck.bin";
-    private static final String PLAYER_TABLE_SAVE_PATH = "./player_table.bin";
-    private static final String TEST_DECK_SAVE_PATH = "./test/deck.bin";
-    private static final String TEST_PLAYER_TABLE_SAVE_PATH = "./test/player_table.bin";
+    private static String DECK_SAVE_PATH         = "deck.bin";
+    private static String PLAYER_TABLE_SAVE_PATH = "player_table.bin";
+    private static String TEST_DECK_SAVE_PATH = "test/deck.bin";
+    private static String TEST_PLAYER_TABLE_SAVE_PATH = "test/player_table.bin";
 
     /**
      * NPCリスト
