@@ -24,10 +24,10 @@ public final class JanFreakMain {
         
         JanBotLib.initialize(new GameAnnouncer(configDirPath));
         
-        while (true) {
-            try {
-                // 閉じてはならない
-                final BufferedReader io = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            // 閉じてはならない
+            final BufferedReader io = new BufferedReader(new InputStreamReader(System.in));
+            while (true) {
                 final String[] commandArray = io.readLine().split(" ", 2);  // 「[プレイヤー名] d ton」の形式
                 
                 if (commandArray.length != 2) {
@@ -161,9 +161,9 @@ public final class JanFreakMain {
                 }
                 Thread.sleep(100);  // CPUリソース浪費対策
             }
-            catch (final Throwable e) {
-                System.err.println(e.getMessage());
-            }
+        }
+        catch (final Throwable e) {
+            System.err.println(e.getMessage());
         }
     }
     
