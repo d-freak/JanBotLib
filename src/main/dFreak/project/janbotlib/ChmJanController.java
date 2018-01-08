@@ -806,6 +806,10 @@ class ChmJanController implements JanController {
             onPhase();
             return;
         case HUMAN:
+            if (_info.getCompletableJanPaiList(activeWind).contains(activeTsumo)) {
+                _info.notifyObservers(AnnounceFlag.COMPLETABLE_TSUMO);
+            }
+            
             if (_firstPhase) {
                 _firstPhase = false;
                 _info.notifyObservers(ANNOUNCE_FLAG_HAND_TSUMO_FIELD);

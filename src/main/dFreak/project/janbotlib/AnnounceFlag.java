@@ -34,6 +34,11 @@ public enum AnnounceFlag {
     COMPLETE_TSUMO,
     
     /**
+     * ツモ和了可能
+     */
+    COMPLETABLE_TSUMO,
+    
+    /**
      * 流局
      */
     GAME_OVER,

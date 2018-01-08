@@ -795,6 +795,9 @@ public class GameAnnouncer implements Observer {
             messageList.add(convertCallInfoToString(info.getActiveDiscard(), flagSet));
             messageList.add("(詳細：「jan help」を参照)");
         }
+        if (flagSet.contains(AnnounceFlag.COMPLETABLE_TSUMO)) {
+            messageList.add("和了可能です。");
+        }
         if (isSelectingDiscard(flagSet)) {
             messageList.add(turnCount + "巡目");
         }
