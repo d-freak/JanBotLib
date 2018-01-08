@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/main"/>
+	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="lib" path="lib/jan.jar"/>
 	<classpathentry kind="lib" path="lib/serializer.jar"/>
 	<classpathentry kind="lib" path="lib/dom4j-1.6.1.jar"/>

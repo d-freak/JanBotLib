@@ -638,6 +638,9 @@ public class GameAnnouncer implements Observer {
         if (!_isChm) {
             return;
         }
+        if ("/".equals(_configDirPath)) {
+            return;
+        }
         final Wind wind = getPlayerWind(info);
         final int completableTurnCount = info.getCompletableTurnCount(wind);
         String addCompletableTurn;
