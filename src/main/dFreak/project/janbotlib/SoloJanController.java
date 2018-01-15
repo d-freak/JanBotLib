@@ -217,7 +217,7 @@ public class SoloJanController implements JanController {
         
         _firstPhase = false;
         
-        if (_afterCall) {
+        if (_info.getAfterCall()) {
             throw new InvalidInputException("Tsumo pai is not exist.");
         }
         
@@ -252,7 +252,7 @@ public class SoloJanController implements JanController {
         
         synchronized (_GAME_INFO_LOCK) {
             final JanPai activeTsumo = _info.getActiveTsumo();
-            if (!_afterCall) {
+            if (!_info.getAfterCall()) {
                 if (target == activeTsumo) {
                     // 直前のツモ牌が指定された
                     discard();
@@ -269,10 +269,10 @@ public class SoloJanController implements JanController {
             // 打牌
             _firstPhase = false;
             hand.removeJanPai(target);
-            if (!_afterCall) {
+            if (!_info.getAfterCall()) {
                 hand.addJanPai(activeTsumo);
             }
-            _afterCall = false;
+            _info.setAfterCall(false);
             
             final Wind activeWind = _info.getActiveWind();
             _info.setHand(activeWind, hand);
@@ -467,7 +467,7 @@ public class SoloJanController implements JanController {
         _info.setHand(activeWind, hand);
         
         // 捨て牌選択
-        _afterCall = true;
+        _info.setAfterCall(true);
         _info.notifyObservers(ANNOUNCE_FLAG_HAND_AFTER_CALL);
         
         // 手変わりに対する待ち判定更新は、ここではなく打牌時に行う。
@@ -483,10 +483,22 @@ public class SoloJanController implements JanController {
         if (target == null) {
             throw new NullPointerException("Call target is null.");
         }
-        
         final Hand hand = _info.getActiveHand();
+        final boolean hasJanPai = hand.getMenZenJanPaiCount(target) != 0;
+        final JanPai pai = _info.getActiveTsumo();
+        
+        if (!hasJanPai && !target.equals(pai)) {
+            // 指定牌を持っていない
+            throw new InvalidInputException("Can't kan.");
+        }
+        
         if (!hasPonMenTsu(hand, target)) {
             // 指定牌のポン面子を持っていない
+            throw new InvalidInputException("Can't kan.");
+        }
+        
+        if (_info.getAfterCall()) {
+            // ポン、チー直後
             throw new InvalidInputException("Can't kan.");
         }
         
@@ -631,7 +643,7 @@ public class SoloJanController implements JanController {
         _info.setHand(activeWind, hand);
         
         // 捨て牌選択
-        _afterCall = true;
+        _info.setAfterCall(true);
         _info.notifyObservers(ANNOUNCE_FLAG_HAND_AFTER_CALL);
         
         // 手変わりに対する待ち判定更新は、ここではなく打牌時に行う。
@@ -980,11 +992,6 @@ public class SoloJanController implements JanController {
      * リーチフラグ
      */
     private volatile boolean _onRichi = false;
-    
-    /**
-     * 副露後の打牌フラグ
-     */
-    private volatile boolean _afterCall = false;
     
     /**
      * 和了の待ち

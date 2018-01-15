@@ -772,6 +772,58 @@ public final class JanGameMaster {
     }
 
     /**
+     * リプレイ処理
+     *
+     * @param playerName プレイヤー名。
+     */
+    public void onTest(final String playerName) {
+        if (playerName == null) {
+            throw new NullPointerException("Player name is null.");
+        }
+        if (playerName.isEmpty()) {
+            throw new IllegalArgumentException("Player name is empty.");
+        }
+
+        // 開始済み判定
+        synchronized (_STATUS_LOCK) {
+            if (!_status.isIdle()) {
+                announceError("--- Already started ---");
+                return;
+            }
+            _status = GameStatus.PLAYING_SOLO;
+        }
+
+        if (!Files.exists(Paths.get(TEST_DECK_SAVE_PATH)) ||
+            !Files.exists(Paths.get(TEST_PLAYER_TABLE_SAVE_PATH))) {
+            announceError("--- Test data is not found ---");
+            return;
+        }
+
+        // 牌山と席順をロード
+        final List<JanPai> deck = getDeck(TEST_DECK_SAVE_PATH);
+        final Map<Wind, Player> playerTable = getPlayerTable(TEST_PLAYER_TABLE_SAVE_PATH);
+
+        // プレイヤー名を差し替え
+        final Wind playerWind = getPlayerWind(playerTable);
+        playerTable.put(playerWind, new Player(playerName, PlayerType.HUMAN));
+
+        // ゲーム開始
+        synchronized (_CONTROLLER_LOCK) {
+            _controller = createJanController();
+            _historyList.add(new CommandHistory(HistoryType.JPM, _controller.getGameInfo()));
+
+            try {
+                _controller.start(deck, playerTable);
+            }
+            catch (final CallableException e) {
+            }
+            catch (final JanException e) {
+                _historyList.pollLast();
+            }
+        }
+    }
+
+    /**
      * リプレイ処理 (中国麻雀)
      *
      * @param playerName プレイヤー名。

@@ -189,6 +189,13 @@ public final class JanBotLib {
     }
     
     /**
+     * テスト
+     */
+    public static void test(final String playerName) {
+        JanGameMaster.getInstance().onTest(playerName);
+    }
+    
+    /**
      * 中国麻雀をテスト
      */
     public static void testChm(final String playerName) {
